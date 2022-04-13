@@ -66,6 +66,13 @@ class Play extends Phaser.Scene {
         // GAME OVER flag
         this.gameOver = false;
 
+        //30-second speedup clock
+        this.speedClock = this.time.delayedCall(game.settings.gameTimer/2, () => {
+            this.ship03.moveSpeed += 1;
+            this.ship02.moveSpeed += 2;
+            this.ship01.moveSpeed += 3;
+        }, null, this);
+
         // 60-second play clock
         scoreConfig.fixedWidth = 0;
         this.showClock = this.add.text(borderUISize + borderPadding*12, borderUISize + borderPadding*2, this.clock, scoreConfig)
@@ -138,6 +145,7 @@ class Play extends Phaser.Scene {
         });
         // score add and repaint
         this.p1Score += ship.points;
+        this.clock.delay += 3000
         this.scoreLeft.text = this.p1Score; 
         
         this.sound.play('sfx_explosion');
