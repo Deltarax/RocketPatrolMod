@@ -15,6 +15,9 @@ class Play extends Phaser.Scene {
 
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
+
+        // load particles
+        this.load.atlas('flares', './assets/flares.png', './assets/flares.json');
     }
 
     create() {
@@ -90,6 +93,7 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← to Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+
     }
 
     update() {
@@ -150,7 +154,7 @@ class Play extends Phaser.Scene {
 
     shipExplode(ship) {
         // temporarily hide ship
-        ship.alpha = 0;                         
+        ship.alpha = 0;        
         // create explosion sprite at ship's position
         let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
         boom.anims.play('explode');             // play explode animation
@@ -159,6 +163,26 @@ class Play extends Phaser.Scene {
             ship.alpha = 1;                       // make ship visible again
             boom.destroy();                       // remove explosion sprite
         });
+
+        // Creating the particle explosion
+        var particles = this.add.particles('flares');
+        particles.createEmitter({
+            frame: 'green',
+            x: ship.x+20, y: ship.y+10,
+            lifespan: { min: 600, max: 800 },
+            angle: { start: 0, end: 360, steps: 64 },
+            speed: 200,
+            quantity: 64,
+            scale: { start: 0.2, end: 0.1 },
+            frequency: 32,
+            blendMode: 'ADD'
+        });
+        // deletes explosion after 3 seconds
+        this.explosionTime = this.time.delayedCall(300, () => {
+            particles.destroy();
+        }, null, this);
+
+
         // score add and repaint
         this.p1Score += ship.points;
         this.clock.delay += 3000
